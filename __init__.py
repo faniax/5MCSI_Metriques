@@ -36,6 +36,32 @@ def extract_minutes(date_string):
         date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
         minutes = date_object.minute
         return jsonify({'minutes': minutes})
+
+
+@app.route("/commits/")
+def commits_page():
+    return render_template("commits_chart.html")
+
+
+@app.route("/api/commit-minutes/")
+def commit_minutes():
+    import requests
+    url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits"
+    response = requests.get(url)
+    commits = response.json()
+
+    minutes_list = []
+
+    for commit in commits:
+        try:
+            date_str = commit["commit"]["author"]["date"]
+            minute = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ').minute
+            minutes_list.append(minute)
+        except:
+            pass
+
+    return jsonify(minutes_list)
+
                                                                                                                                        
 @app.route('/')
 def hello_world():
