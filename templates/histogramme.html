@@ -1,40 +1,112 @@
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Metrique</title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  </head>
-  <body>
-    <div id="chart_div"></div>
-    <script>
-      google.charts.load('current', { packages: ['corechart'] });
-      google.charts.setOnLoadCallback(drawBackgroundColor);
-     function drawBackgroundColor() {
-    function drawChart(data) {
-    // Convertir les données récupérées en un tableau utilisable par Google Charts
-    var dataTable = new google.visualization.DataTable();
-    dataTable.addColumn('string', 'Date');
-    dataTable.addColumn('number', 'Valeur');
-    data.results.forEach(entry => {
-      var date = new Date(entry.Jour * 1000);
-      dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Histogramme — Températures Tawarano</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f7fafc; margin:0; padding:24px; }
+    .card { max-width:900px; margin:24px auto; background:white; border-radius:12px; box-shadow:0 6px 20px rgba(21,30,40,0.08); padding:20px; }
+    h1 { font-size:20px; margin:0 0 12px 0; }
+    p.lead { margin:0 0 18px 0; color:#444; }
+    canvas { width:100% !important; height:480px !important; }
+    .controls { display:flex; gap:8px; margin-top:12px; }
+    .controls button { padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Évolution des températures — Tawarano</h1>
+    <p class="lead">Histogramme (barres) représentant l'évolution des températures. Remplacez les données ci‑dessous par celles de votre source.</p>
+
+    <canvas id="tempChart" aria-label="Histogramme des températures de Tawarano" role="img"></canvas>
+
+    <div class="controls">
+      <button id="randomize">Générer valeurs exemple</button>
+      <button id="download">Télécharger PNG</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Exemple de jeu de données. Remplacez labels et dataTemps par vos vraies valeurs ---
+    const labels = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
+    // températures moyennes mensuelles (°C) — exemple
+    let dataTemps = [2, 3, 7, 12, 16, 20, 24, 23, 18, 12, 7, 3];
+
+    const ctx = document.getElementById('tempChart').getContext('2d');
+
+    // Création du graphique (histogramme / bar chart)
+    const tempChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Température (°C)',
+          data: dataTemps,
+          // Remarquez qu'on ne définit pas de couleurs strictes — Chart.js choisit automatiquement,
+          // mais vous pouvez personnaliser ici si nécessaire.
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Évolution des températures — Tawarano',
+            padding: { top: 6, bottom: 10 }
+          },
+          legend: { display: false },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            title: { display: true, text: 'Mois' }
+          },
+          y: {
+            beginAtZero: false,
+            title: { display: true, text: 'Température (°C)' }
+          }
+        }
+      }
     });
-    // Configurer les options du graphique en ligne
-    var options = {
-      title: 'Évolution des températures de la ville de Tawarano',
-      curveType: 'function',
-      legend: { position: 'bottom' }
-    };
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-    chart.draw(dataTable, options);
-  }
-  // Récupération de données depuis notre API /tawarano/
-  fetch('/tawarano/')
-    .then(response => response.json())
-    .then(data => {
-      drawChart(data);
-    })
-}
-    </script>
-  </body>
+
+    // Bouton : générer des valeurs d'exemple aléatoires (pour tester)
+    document.getElementById('randomize').addEventListener('click', () => {
+      for (let i = 0; i < dataTemps.length; i++) {
+        dataTemps[i] = Math.round((Math.random() * 25 - 5) * 10) / 10; // valeurs entre -5 et 20°C
+      }
+      tempChart.data.datasets[0].data = dataTemps;
+      tempChart.update();
+    });
+
+    // Bouton : télécharger le graphique en PNG
+    document.getElementById('download').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = document.getElementById('tempChart').toDataURL('image/png');
+      a.download = 'tawarano_temperatures.png';
+      a.click();
+    });
+
+    // --- Si vous voulez injecter des données depuis une API externe ---
+    // Exemple (commenté) :
+    // fetch('/api/temperatures/tawarano')
+    //   .then(r => r.json())
+    //   .then(json => {
+    //     // json.labels = [...], json.data = [...]
+    //     tempChart.data.labels = json.labels;
+    //     tempChart.data.datasets[0].data = json.data;
+    //     tempChart.update();
+    //   });
+
+    // Astuce de déploiement : uploadez ce fichier sur votre site (ex. public_html/histogramme_tawarano.html)
+    // et liez-le depuis une page existante. Si votre site sert des données dynamiques, fournissez une URL JSON
+    // et remplacez le fetch ci‑dessus pour charger les vraies valeurs.
+  </script>
+</body>
 </html>
