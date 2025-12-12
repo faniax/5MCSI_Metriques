@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Commits GitHub – par minute</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f7fa;
+            padding: 40px;
+        }
+        .card {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+        }
+        canvas {
+            width: 100% !important;
+            height: 450px !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>Commits GitHub – Minute par minute</h1>
+    <p>Données extraites automatiquement depuis l’API GitHub du dépôt d’origine.</p>
+
+    <canvas id="commitChart"></canvas>
+</div>
+
+<script>
+fetch("/api/commit-minutes/")
+    .then(r => r.json())
+    .then(minutes => {
+
+        // tableau de 60 minutes initialisé à 0
+        let counts = Array(60).fill(0);
+        minutes.forEach(m => counts[m]++);
+
+        const ctx = document.getElementById("commitChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: [...Array(60).keys()],
+                datasets: [{
+                    label: "Commits par minute",
+                    data: counts,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Activité des commits (minute par minute)"
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { title: { display: true, text: "Minute (0–59)" } },
+                    y: { beginAtZero: true, title: { display: true, text: "Nombre de commits" } }
+                }
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>
