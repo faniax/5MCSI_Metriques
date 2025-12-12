@@ -68,24 +68,53 @@
     button:hover {
       background: #3867d6;
     }
-  </style>
+      /* 🌈 Mise en page plus moderne */
+    .contact-form h2 {
+        margin-bottom: 15px;
+        font-size: 1.9em;
+        background: linear-gradient(90deg, #7a00ff, #00c3ff);
+        -webkit-background-clip: text;
+        color: transparent;
+        text-align: center;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .glow-button {
+        margin-top: 20px;
+        padding: 12px 20px;
+        background: linear-gradient(90deg, #7a00ff, #4d00c7);
+        border: none;
+        color: #fff;
+        border-radius: 10px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 0 10px rgba(122, 0, 255, 0.5);
+    }
+
+    .glow-button:hover {
+        background: linear-gradient(90deg, #9d38ff, #6a00ff);
+        box-shadow: 0 0 15px rgba(122, 0, 255, 0.8);
+        transform: translateY(-2px);
+    }
+</style>
 </head>
 <body>
   <div class="card">
     <h1>Contactez‑nous</h1>
-    <form>
-      <label for="prenom">Prénom</label>
-      <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required />
-
-      <label for="nom">Nom</label>
-      <input type="text" id="nom" name="nom" placeholder="Votre nom" required />
-
-      <label for="message">Message</label>
-      <textarea id="message" name="message" placeholder="Votre message..." required></textarea>
-
-      <button type="submit">Envoyer</button>
-    </form>
+    <form class="contact-form">
+            <h2>📬 Contactez-nous</h2>
+            <div class="input-group">
+                <input type="text" name="prenom" placeholder="Prénom" required>
+                <input type="text" name="nom" placeholder="Nom" required>
+            </div>
+            <textarea name="message" placeholder="Votre message..." required></textarea>
+            <button type="submit" class="glow-button">Envoyer ✉️</button>
+        </form>
   </div>
 </body>
 </html>
-
